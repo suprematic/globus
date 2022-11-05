@@ -31,10 +31,11 @@
 
 (defn parse-cset [p in]
   (let [[[c bs] & in'] in
-        [tag in] (if (and c (not bs) (#{\^ \!} c)) [:rhc in'] [:chr in])]
-    (parse* in
-      {\] nil
-       :finalize #(finalize-cset tag %)})))
+        [tag in] (if (and c (not bs) (#{\^ \!} c)) [:rhc in'] [:chr in])
+        [cs c in'] (parse* in {\] nil :finalize #(finalize-cset tag %)})]
+    (if-not c
+      (throw (ex-info "unclosed cset" {:in in}))
+      [cs c in'])))
 
 (declare parse-seq)
 
@@ -43,7 +44,7 @@
          in in]
     (let [[sq c in'] (parse-seq in {\} nil \, nil})]
       (if-not c
-        (throw (ex-info "unclosed alt" {}))
+        (throw (ex-info "unclosed alt" {:in in}))
         (let [rv (conj rv sq)]
           (if (= c \,)
             (recur rv in')
@@ -107,9 +108,26 @@
     :* ".*"
     :? "."))
 
+(defn pattern->regex [pat]
+  (-> pat parse ast->regex))
+
 (defn glob [pat sq]
-  (let [re (-> pat parse ast->regex re-pattern)]
+  (let [re (re-pattern (pattern->regex pat))]
     (filter #(re-matches re %) sq)))
+
+(defn ast->string [ast]
+  (case (first ast)
+    :seq (reduce
+           #(if-let [s (ast->string %2)]
+              (str %1 s)
+              (reduced nil))
+           ""
+           (rest ast))
+    :str (apply str (rest ast))
+    nil))
+
+(defn glob? [s]
+  (= s (ast->string (parse s))))
 
 (comment
   (parse "ab[^ab0-9-q]c{a*,bb{c,*d}a}")
@@ -117,6 +135,7 @@
   (->> "a(b{g*,h,}[![d-f]" parse ast->regex)
 
   (explode "2022-{0[89],1{0,1}}")
+  (glob? "10.12.2021")
 
   (glob "{a*,bc[de]}?" ["aaa" "bceq" "bbbb" "cqqq"])
   ;;
