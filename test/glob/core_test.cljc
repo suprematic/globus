@@ -1,7 +1,9 @@
 (ns glob.core-test
-  (:require [clojure.test :refer :all]
-            [glob.core :refer :all]))
+  (:require
+    #?(:clj [clojure.test :refer :all]
+       :cljs [cljs.test :refer-macros [deftest testing is]])
+    [glob.core :as glob]))
 
-(deftest a-test
+(deftest a-test 
   (testing "proof of concept"
-    (is (= (glob "a*c" ["aaa" "bbb" "abc" "def"]) ["abc"]))))
+    (is (= (glob/glob "a*c" ["aaa" "bcb" "abc" "def"]) ["abc"]))))

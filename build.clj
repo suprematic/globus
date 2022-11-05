@@ -4,12 +4,17 @@
             [org.corfield.build :as bb]))
 
 (def lib 'net.clojars.glob/glob)
-(def version "0.1.0-SNAPSHOT")
-#_ ; alternatively, use MAJOR.MINOR.COMMITS:
-(def version (format "1.0.%s" (b/git-count-revs nil)))
+#_(def version "0.1.0-SNAPSHOT")
+; alternatively, use MAJOR.MINOR.COMMITS:
+(def version (format "0.1.%s" (b/git-count-revs nil)))
 
 (defn test "Run the tests." [opts]
   (bb/run-tests opts))
+
+(defn test-node "Run node.js tests" [opts]
+  (b/delete {:path "out/node-test.js"})
+  (b/process {:command-args ["clj" "-M:shadow-cljs" "compile" "node-test"]})
+  (b/process {:command-args ["node" "out/node-test.js"]}))
 
 (defn ci "Run the CI pipeline of tests (and build the JAR)." [opts]
   (-> opts

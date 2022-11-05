@@ -1,0 +1,5 @@
+{:deps true
+ :builds
+ {:node-test
+  {:target :node-test
+   :output-to "out/node-test.js"}}}
