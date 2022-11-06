@@ -70,6 +70,9 @@
 (defn parse [s]
   (-> s tokenize (parse-seq nil) first))
 
+(defn- char-code [c]
+  #?(:clj (int c) :cljs (.charCodeAt c 0)))
+
 (defn explode-ast [ast]
   (case (first ast)
     :str [(str/join (rest ast))]
@@ -82,7 +85,7 @@
            #(if (char? %2)
               (conj %1 (str %2))
               (into %1 (map (comp str char)
-                         (range (int (%2 1)) (inc (int (%2 2)))))))
+                         (range (char-code (%2 1)) (inc (char-code (%2 2)))))))
            []
            (rest ast))
     (throw (ex-info "glob cannot be exploded" {:ast ast}))))
@@ -108,8 +111,11 @@
     :* ".*"
     :? "."))
 
+(defn- wrap-cljs-regex [s]
+  (str \^ s \$))
+
 (defn pattern->regex [pat]
-  (-> pat parse ast->regex))
+  (-> pat parse ast->regex #?(:cljs wrap-cljs-regex)))
 
 (defn glob [pat sq]
   (let [re (re-pattern (pattern->regex pat))]
