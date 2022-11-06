@@ -75,7 +75,7 @@
     :str [(str/join (rest ast))]
     :alt (mapcat explode-ast (rest ast))
     :seq (reduce
-           #(for [x %1 y (explode-ast %2)] (str x y))
+           #(vec (for [x %1 y (explode-ast %2)] (str x y)))
            [""]
            (rest ast))
     :chr (reduce
