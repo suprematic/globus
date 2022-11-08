@@ -3,9 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>globus</groupId>
   <artifactId>globus</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
   <name>globus</name>
-  <description>FIXME: my new library.</description>
+  <description>Bash-like globbing patterns for Clojure(Scipt)</description>
   <url>https://github.com/suprematic/globus</url>
   <licenses>
     <license>

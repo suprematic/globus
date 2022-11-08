@@ -1,15 +1,10 @@
-# glob/glob
+# Globus
 
 FIXME: my new library.
 
 ## Usage
 
 FIXME: write usage documentation!
-
-Invoke a library API function from the command-line:
-
-    $ clojure -X glob.glob/foo :a 1 :b '"two"'
-    {:a 1, :b "two"} "Hello, World!"
 
 Run the project's tests (they'll fail until you edit them):
 
@@ -31,8 +26,6 @@ Deploy it to Clojars -- needs `CLOJARS_USERNAME` and `CLOJARS_PASSWORD` environm
 variables (requires the `ci` task be run first):
 
     $ clojure -T:build deploy
-
-Your library will be deployed to net.clojars.glob/glob on clojars.org by default.
 
 ## License
 

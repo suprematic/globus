@@ -1,4 +1,4 @@
-(ns glob.core
+(ns globus.core
   (:require
     [clojure.string :as str]))
 
@@ -73,22 +73,22 @@
 (defn- char-code [c]
   #?(:clj (int c) :cljs (.charCodeAt c 0)))
 
-(defn explode-ast [ast]
-  (case (first ast)
-    :str [(str/join (rest ast))]
-    :alt (mapcat explode-ast (rest ast))
+(defn explode-ast [[tag & data :as ast]]
+  (case tag
+    :str [(str/join data)]
+    :alt (mapcat explode-ast data)
     :seq (reduce
            #(vec (for [x %1 y (explode-ast %2)] (str x y)))
            [""]
-           (rest ast))
+           data)
     :chr (reduce
            #(if (char? %2)
               (conj %1 (str %2))
               (into %1 (map (comp str char)
                          (range (char-code (%2 1)) (inc (char-code (%2 2)))))))
            []
-           (rest ast))
-    (throw (ex-info "glob cannot be exploded" {:ast ast}))))
+           data)
+    (throw (ex-info "glob cannot be exploded" {:tag tag :data data}))))
 
 (defn explode [pat]
   (-> pat parse explode-ast))
@@ -101,13 +101,13 @@
     (get RE-SPECIALS cs cs)
     (str/join (replace RE-SPECIALS [(cs 1) "-" (cs 2)]))))
 
-(defn ast->regex [ast]
-  (case (first ast)
-    :str (->> ast rest (replace RE-SPECIALS) str/join)
-    :alt (str "(?:(?:" (str/join ")|(?:" (map ast->regex (rest ast))) "))")
-    :seq (str/join (map ast->regex (rest ast)))
-    :chr (str "[" (str/join (map cset->s (rest ast))) "]")
-    :rhc (str "[^" (str/join (map cset->s (rest ast))) "]")
+(defn ast->regex [[tag & data :as ast]]
+  (case tag
+    :str (->> data (replace RE-SPECIALS) str/join)
+    :alt (str "(?:(?:" (str/join ")|(?:" (map ast->regex data)) "))")
+    :seq (str/join (map ast->regex data))
+    :chr (str "[" (str/join (map cset->s data)) "]")
+    :rhc (str "[^" (str/join (map cset->s data)) "]")
     :* ".*"
     :? "."))
 
@@ -121,15 +121,15 @@
   (let [re (re-pattern (pattern->regex pat))]
     (filter #(re-matches re %) sq)))
 
-(defn ast->string [ast]
-  (case (first ast)
+(defn ast->string [[tag & data :as ast]]
+  (case tag
     :seq (reduce
            #(if-let [s (ast->string %2)]
               (str %1 s)
               (reduced nil))
            ""
-           (rest ast))
-    :str (apply str (rest ast))
+           data)
+    :str (apply str data)
     nil))
 
 (defn glob? [s]

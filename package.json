@@ -1,6 +1,6 @@
 {
-  "name": "glob",
-  "version": "0.0.1",
+  "name": "globus",
+  "version": "0.2.0",
   "private": true,
   "devDependencies": {
     "shadow-cljs": "^2.20.7"

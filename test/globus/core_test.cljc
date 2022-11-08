@@ -1,8 +1,8 @@
-(ns glob.core-test
+(ns globus.core-test
   (:require
     #?(:clj [clojure.test :refer :all]
        :cljs [cljs.test :refer-macros [deftest testing is]])
-    [glob.core :as glob])
+    [globus.core :as glob])
   (:import
     #?(:clj [clojure.lang ExceptionInfo])))
 
@@ -37,7 +37,11 @@
        (glob/explode "{202{2-1[12],3-0[1-3]}}")
        ["2022-11" "2022-12" "2023-01" "2023-02" "2023-03"])))
 
+(defn- not-thrown? [_]
+  true)
+
 (deftest errors
   (is (thrown? ExceptionInfo (glob/parse "{aaa")))
-  (is (vector? (glob/parse "aaa}")))
+  (is (not-thrown? (glob/parse "\\{aaa")))
+  (is (not-thrown? (glob/parse "aaa}")))
   (is (thrown? ExceptionInfo (glob/explode "a*b"))))
