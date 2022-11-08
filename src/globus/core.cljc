@@ -1,4 +1,15 @@
 (ns globus.core
+  "Bash-like globbing patterns for Clojure(Script).
+
+  Supported pattern language constructs:
+
+  * `?`: matches any single character
+  * `*`: matches any string, including the empty string
+  * `[qwe]`: matches any single character in `#{\\q \\w \\e}`
+  * `[^qwe]` or `[!qwe]`: matches any single character _not_ in `#{\\q \\w \\e}`
+  * `[a-f]`: matches any single character between `\\a` and `\\f` (inclusive)
+  * `{one,two,three}`: matches anything that any of the patterns `one`, `two`
+  and `three` would match."
   (:require
     [clojure.string :as str]))
 
@@ -90,7 +101,10 @@
            data)
     (throw (ex-info "glob cannot be exploded" {:tag tag :data data}))))
 
-(defn explode [pat]
+(defn explode
+  "enumerate all possible expansions of a pattern.
+  (throws an exception if that is impossible for `pat`)"
+  [pat]
   (-> pat parse explode-ast))
 
 (def ^:private RE-SPECIALS
@@ -114,10 +128,14 @@
 (defn- wrap-cljs-regex [s]
   (str \^ s \$))
 
-(defn pattern->regex [pat]
+(defn pattern->regex
+  "Convert glob pattern `pat` into a regular expression"
+  [pat]
   (-> pat parse ast->regex #?(:cljs wrap-cljs-regex)))
 
-(defn glob [pat sq]
+(defn glob
+  "Filter sequence of strings `sq` using pattern `pat`"
+  [pat sq]
   (let [re (re-pattern (pattern->regex pat))]
     (filter #(re-matches re %) sq)))
 
@@ -132,8 +150,10 @@
     :str (apply str data)
     nil))
 
-(defn glob? [s]
-  (= s (ast->string (parse s))))
+(defn glob?
+  "Check if a string looks like a glob pattern"
+  [s]
+  (not= s (ast->string (parse s))))
 
 (comment
   (parse "ab[^ab0-9-q]c{a*,bb{c,*d}a}")
