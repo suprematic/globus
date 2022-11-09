@@ -1,5 +1,8 @@
 # Globus
 
+[![Clojars Project](https://img.shields.io/clojars/v/io.github.suprematic/globus.svg)](https://clojars.org/io.github.suprematic/globus)
+[![cljdoc badge](https://cljdoc.org/badge/io.github.suprematic/globus)](https://cljdoc.org/d/io.github.suprematic/globus)
+
 Bash-like globbing patterns for Clojure(Script).
 
 Supported pattern language constructs:
