@@ -32,6 +32,10 @@ See the [tests](test/globus/) for more details and examples.
 (glob/glob "a*" ["aaa" "bb" "cccc" "defg"]) ; => ("aaa")
 (glob/glob "[^a]???" ["aaa" "bb" "cccc" "defg"]) ; => ("cccc" "defg")
 
+;; ignorecase
+(glob/glob "A*" ["aaa" "bb" "cccc" "defg"]) ; => ()
+(glob/glob "A*" ["aaa" "bb" "cccc" "defg"] {:ignorecase true}) ; => ("aaa")
+
 ;; convert a pattern to a (string representation of a) regular expression
 (glob/pattern->regex "{a.*,*b}") ; => "(?:(?:a\\..*)|(?:.*b))"
 
@@ -65,6 +69,6 @@ Run the project's tests:
 
 ## License
 
-Copyright © 2022 Suprematic
+Copyright © 2022-2024 Suprematic
 
 Distributed under the Eclipse Public License.

@@ -130,14 +130,17 @@
 
 (defn pattern->regex
   "Convert glob pattern `pat` into a regular expression"
-  [pat]
-  (-> pat parse ast->regex #?(:cljs wrap-cljs-regex)))
+  ([pat] (pattern->regex pat nil))
+  ([pat {:keys [ignorecase]}]
+   (cond->> (-> pat parse ast->regex #?(:cljs wrap-cljs-regex))
+     ignorecase (str "(?i)"))))
 
 (defn glob
   "Filter sequence of strings `sq` using pattern `pat`"
-  [pat sq]
-  (let [re (re-pattern (pattern->regex pat))]
-    (filter #(re-matches re %) sq)))
+  ([pat sq] (glob pat sq nil))
+  ([pat sq {:keys [ignorecase] :as options}]
+   (let [re (re-pattern (pattern->regex pat options))]
+     (filter #(re-matches re %) sq))))
 
 (defn ast->string [[tag & data :as ast]]
   (case tag
@@ -164,5 +167,7 @@
   (glob? "10.12.2021")
 
   (glob "{a*,bc[de]}?" ["aaa" "bceq" "bbbb" "cqqq"])
+  (glob "{A*,bc[de]}?" ["aaa" "bceq" "bbbb" "cqqq"])
+  (glob "{A*,bc[de]}?" ["aaa" "bceq" "bbbb" "cqqq"] {:ignorecase true})
   ;;
   )

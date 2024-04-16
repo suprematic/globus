@@ -37,6 +37,21 @@
        (glob/explode "{202{2-1[12],3-0[1-3]}}")
        ["2022-11" "2022-12" "2023-01" "2023-02" "2023-03"])))
 
+(deftest ignorecase
+  (testing "star"
+    (is (= (count (glob/glob "A*" HAYSTACK {:ignorecase true})) 3))
+    (is (= (count (glob/glob "A*" HAYSTACK)) 0))
+    (is (= (glob/glob "*Bb*" HAYSTACK {:ignorecase true}) ["bbbb"]))
+    (is (= (glob/glob "*Bb*" HAYSTACK) [])))
+  (testing "question mark"
+    (is (= (glob/glob "??" HAYSTACK) ["ff"]))
+    (is (= (glob/glob "A?cD" HAYSTACK {:ignorecase true}) ["abcd"]))
+    (is (= (glob/glob "A?cD" HAYSTACK) [])))
+  (testing "characater set"
+    (is (= (glob/glob "abc[A-F]-2[0-9]" HAYSTACK {:ignorecase true})
+          ["abcd-23"]))
+    (is (= (glob/glob "abc[A-F]-2[0-9]" HAYSTACK) []))))
+
 (defn- not-thrown? [_]
   true)
 
